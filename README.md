@@ -1,20 +1,46 @@
 # ArdoongaSmithy
 
-1. Próbowałem grać w powieści wizualne RenPy Android. Po godzinie zwykle aplikacja sama się zabija.
-2. Chyba za rządów Beaty Szydło założyłem pierwszą gildię w jednym z klonów Vallheru, która zakończyła erę.
-     - Od tamtych czasów chciałem zrobić lepiej zoptymalizowaną wersję gry, o wiele łatwiejszą w modyfikacji.
-     - Ale ostatecznie nic nie powstało.
-3. Chciałem zostać Junior FullStack Developerem ale nie radzę sobie z najprostszymi zadaniami i nie pasuję do kultury żadnej organizacji.
+Deklaratywny framework jak Flutter ale od gier tekstowych. 
+Oparty o WebAssembly32, Konwencję Ponad Konfiguracją
+i składnię w stylu AsciiDoc.
 
-Plan jest taki, że nie ma planu:
+## Problem do rozwiązania
 
-- Chcę zrobić deklaratywny framework z wtyczkami w WebAssembly na przeglądarki i Androida.
-- Z domyślnym serwerem i publiczną bazą danych. Bez zbędnej konfiguracji po stronie twórców gier.
-- Przypominający AsciiDoc w składni i podziale na szablony.
-- Z podstawową obsługą Canvas 2D.
-- Oparty na Konwencji Ponad Konfiguracją.
+Mam framework, który zmienia się minimum raz na miesiąc. 
+Raz na rzekomo oficjalnej stronie czytasz o jakimś [API](https://developer.android.com/develop/ui/compose/layouts/flow?hl=pl), 
+a zaraz potem trafiasz na [info o jego wycofaniu](https://android-review.googlesource.com/c/platform/frameworks/support/+/1521704).
+Na dzień dziesiejszy jednak działa ALE w trybie ExperimentalLayoutApi.
+Crystal Lang miał bardzo podobny problem (LLVM psuje się po każdej aktualizacji) 
+i postanowił rozwiązać go dzieląc cały kod na jak najmniejsze elementy + testy.
 
-Oczywiście ani na Androidzie, ani na grafice 2D zbytnio się nie znam.
+Ja idę o krok dalej. Znam się jako tako na CSS 
+ale kompletnie nie znam się na Kotlin Jetpack Compose.
+Wymyśliłem, więc taki oto sposób nauki:
+
+1. Biorę element w CSS
+2. Szukam odpowiednika w Compose
+3. Zapisuję je w dwóch katalogach, jako pliki o identycznych nazwach
+4. Zakładam, że biblioteka UI nie zajmuje się niczym innym jak wyświetlaniem na ekranie
+
+A teraz pomyślmy sobie, a gdyby zapisać to wszystko w języku pośrednim ? 
+Czy byłbym w stanie napisać cały framework ? Czy byłby stabilny ?
+
+Tak powstał pomysł na napisanie silnika gier tekstowych + usług online + proste 2D.
+
+W katalogu *core* mam podstawowe elementy, w katalogu *implementation* zapisuję 
+to samo w odpowiednich językach/bibliotekach. Pierwszy katalog to platforma (
+Browsers, Windows, Linux, Mac, Android, iOS), drugi to nazwa frameworka.
+W katalogu *templates* wprowadzam komponenty wyższego rzędu.
+
+W ogóle przeprowadziłem kilka testów Chata GPT i całkiem dobrze sobie radzi z
+```
+Your code is correct and will work as intended. However, if you want to make it a bit cleaner or more flexible, you could consider the following:
+```
+Za to jak mu napiszesz <<Napisz mi X>> to najprawdopodobnie wyrzuci totalny bełkot.
+
+Co jest przerażające. Tradycyjnie musiałem spędzić kilka dni na przygotowanie kilku funkcji 
+testowych i ich uruchamianie z UNIX *time* po kilka razy. Nie miałem tego czegoś, że 
+patrzysz na kod i po sekundzie wiesz ile nanosekund stracisz na pisaniu właśnie w ten sposób. 
 
 ## Szablony
 
@@ -41,43 +67,83 @@ AsciiDoc jest niewrażliwy na spacje/taby (YAML odpada),
 poszczególne symbole są proste do odróżnienia (porównaj z opcja(Txt: A, Location: B) ),
 łatwy do czytania w notatniku.
 
-Komputer nie ma świadomości istnienia czegokolwiek. 
-Miasto wyświetla linki do miejsc, a modyfikatory 
-za rasę definiuje się w jednym pliku.
+Największym problemem z Flutterem jest ogromny rozmiar pliku 
+(tak, istnieją androidy z 250 mb miejsca na dysku) i zarządzanie stanem.
+
+W moim frameworku korzystam z ideologii serverless, 
+więc mogę sobie pozwolić na zepchnięcie stanu na poziom komponentów.
+Ty tworzysz grę, a dane użytkowników zapisują się same w bezpłatnej chmurze.
 
 ## Smithy
+*@Unstable* *Zapewne wkrótce się zmieni*
 
-Smithy opisuje zarówno katalogi, jak i API dostępne w szablonach.
-
-Powiedzmy, że mam:
+Język przeznaczony dla automatycznych generatorów kodu, czytelny dla człowieka.
 
 ```smithy
-# test.smithy
-
 $version: "2"
-namespace templates.html5
 
-// HTML5 template APIs
-// Ten komentarz nie pojawi się w pliku źródłowym
-service HTML5 {
-    version: "0.1"
-    operations: [
-        Txt
-    ]
+namespace core.models.city
+use core.traits.layout#FlexColumnsDesktop
+use core.traits.layout#FlexColumnsMobile
+
+service City {
+    version: "1.01"
 }
 
-/// Display text on screen
-/// Ten komentarz będzie widoczny w pliku źródłowym
-@TestExample txt.test # tests/templates/html5/txt/txt.js.test
-operation Txt {
-    input: String,
-    output: String
-}
+@FlexColumnsDesktop(3)
+@FlexColumnsMobile(2)
+structure Layout {}
 ```
 
-Wiem, że istnieje taka funkcja jak Txt. Wiem, że wyświetla tekst na ekranie. 
-I wiem, że więcej przykładów jak ona działa znajdę w katalogu tests/templates/html5/txt.
+Tutaj nic wielkiego. Tworzę coś o nazwie City i daję wskazówki 
+jak komputer ma mi podzielić ekran na mniejszych i większych urządzeniach.
+Żeby zrobić z tego *component* w JS, czy *composable* w Kotlinie 
+wykorzystuję gotowy szablon i argumenty funkcji.
 
-Implementacje w SolidJS i Kotlin Compose Jetpack będą w osobnych repozytoriach.
+Jeśli mówisz sobie *<Widzę przed sobą miasto w Amorionie, mam listę swoich linków i chcę żeby komputer zrobił mi identyczną stronę ale z moją treścią>*
+ale nie ma akurat gotowego moda, to musisz napisać go w Smithy. Nie jest to trudne ale na początku może się wydawać dziwne.
 
-Pastebin: https://github.com/smithy-lang/smithy-examples/blob/main/custom-trait-examples/custom-trait/model/custom-traits.smithy
+## Układ Katalogów
+*@Unstable* *Zapewne wkrótce się zmieni*
+
+* Core
+* * Models
+* * Design
+* * Implementation [Testy]
+* * * SolidJS
+* * * Compose Jetpack
+* Templates
+* * Vallheria
+* * * Models
+* * * Design
+* * * Implementation
+* * Canvas
+* * FenoxoStyleDesign
+* * AzgaarMapMod
+
+### Wyjaśnienie
+
+W przeciwieństwie do samouczków na YouTubach i kursów 
+Samouctwo kładzie szczególny nacisk na planowanie. 
+Zaczynamy od katalogu Design, w którym leżą pliki .svg 
+(przekonwertowane z Figmy)
+Wiedząc jak ma wyglądać UI przechodzę do katalogu 
+Models, w którym leżą pliki .smithy . Tutaj zapisuję 
+argumenty wszystkich funkcji oraz modele danych.
+
+Katalog Templates jest podstawą deklaratywnego 
+frameworku, o którym mowa w dalszej części dokumentu. 
+
+WasMath to kilka prostych skryptów w WASM32, które pozwolą 
+mi zautomatyzować tworzenie logiki biznesowej.
+
+Canvas to zbiór eksperymentów z wyświetlaniem grafiki 2D
+w stylu jRPG i RenPy Visual Novels (próbowałem z tego 
+korzystać na Androidzie ale zawsze aplikacja się zabija 
+po pewnym czasie). 
+
+Fenoxo znany jest z charakterystycznego interfejsu 
+użytkownika dla gier tekstowych.
+
+Azgaar stworzył edytor map fantasy. Mod używa danych 
+z istniejącej mapy do stworzenia realistyczniejszych gier.
