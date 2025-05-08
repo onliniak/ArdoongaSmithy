@@ -4,6 +4,33 @@ Deklaratywny framework jak Flutter ale od gier tekstowych.
 Oparty o WebAssembly32, Konwencję Ponad Konfiguracją
 i składnię w stylu AsciiDoc.
 
+## Nowy Wstęp
+
+System:
+1. Biorę grę X. Kopiuję jej wygląd i mechaniki.
+2. Brakuje mi funkcji Y w grze X. Opisuję jak dodać własne rozszerzenia.
+3. Tworzę instrukcje dla automatycznych generatorów kodu 
+i sztucznych inteligencji w jaki sposób wyświetlić to na ekranie 
+i podaję wzory matematyczne do mechanik.
+
+Twórca gry:
+1. Kopiuję sobie mechaniki z gier A, B, C
+2. Łączę z wyglądem gry XYZ
+3. Dodaję swoje zdjęcia, ściany tekstu w Wordzie
+i resztę treści w odpowiednim formacie.
+4. I mam swoją grę na przeglądarki (i androida)
+bez żadnej konfiguracji serwerów, czy programowania.
+
+Wszyscy:
+1. Gry tekstowe RPG są najprostsze, idą pierwsze.
+2. Powieści wizualne i jRPG są nieco bardziej skomplikowane.
+Chcę się nimi zająć później.
+3. Gier 3D nawet nie będę próbował zrobić.
+4. Na edytorach wizualnych się nie znam.
+
+Status: Na razie planuję jak ma wyglądać automatyczny 
+generator kodu. I jak mam zapisać to co robię.
+
 ## Problem do rozwiązania
 
 Mam framework, który zmienia się minimum raz na miesiąc. 
@@ -79,29 +106,8 @@ Ty tworzysz grę, a dane użytkowników zapisują się same w bezpłatnej chmurz
 
 Język przeznaczony dla automatycznych generatorów kodu, czytelny dla człowieka.
 
-```smithy
-$version: "2"
-
-namespace core.models.city
-use core.traits.layout#FlexColumnsDesktop
-use core.traits.layout#FlexColumnsMobile
-
-service City {
-    version: "1.01"
-}
-
-@FlexColumnsDesktop(3)
-@FlexColumnsMobile(2)
-structure Layout {}
-```
-
-Tutaj nic wielkiego. Tworzę coś o nazwie City i daję wskazówki 
-jak komputer ma mi podzielić ekran na mniejszych i większych urządzeniach.
-Żeby zrobić z tego *component* w JS, czy *composable* w Kotlinie 
-wykorzystuję gotowy szablon i argumenty funkcji.
-
-Jeśli mówisz sobie *<Widzę przed sobą miasto w Amorionie, mam listę swoich linków i chcę żeby komputer zrobił mi identyczną stronę ale z moją treścią>*
-ale nie ma akurat gotowego moda, to musisz napisać go w Smithy. Nie jest to trudne ale na początku może się wydawać dziwne.
+W tej chwili zawartość tej sekcji rozwija się w komentarzach modeli.
+Później dodam pełne podsumowanie.
 
 ## Układ Katalogów
 *@Unstable* *Zapewne wkrótce się zmieni*
